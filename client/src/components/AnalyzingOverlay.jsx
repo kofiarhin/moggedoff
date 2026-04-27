@@ -11,7 +11,7 @@ const PHASES = [
 function ScanRing({ delay }) {
   return (
     <div
-      className="absolute inset-0 rounded-full border border-rose-500"
+      className="absolute inset-0 rounded-full border border-rose-400"
       style={{ opacity: 0, animation: `radar-pulse 2s ease-out ${delay}s infinite` }}
     />
   )
@@ -28,14 +28,14 @@ function FaceScanner({ label }) {
         <div
           className="absolute inset-2 rounded-full border-2 border-transparent"
           style={{
-            borderTopColor: 'rgb(244 63 94)',
-            borderRightColor: 'rgba(244,63,94,0.25)',
+            borderTopColor: 'rgb(251 113 133)',
+            borderRightColor: 'rgba(251,113,133,0.25)',
             animation: 'scan-rotate 1.1s linear infinite',
           }}
         />
-        <div className="absolute h-px w-3 bg-rose-500/40" />
-        <div className="absolute h-3 w-px bg-rose-500/40" />
-        <div className="h-2 w-2 rounded-full bg-rose-500 shadow-[0_0_8px_3px_rgba(244,63,94,0.7)]" />
+        <div className="absolute h-px w-3 bg-rose-400/40" />
+        <div className="absolute h-3 w-px bg-rose-400/40" />
+        <div className="h-2 w-2 rounded-full bg-rose-400 shadow-[0_0_8px_3px_rgba(251,113,133,0.45)]" />
       </div>
       <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400">{label}</p>
     </div>
@@ -62,7 +62,7 @@ function AnalyzingOverlay({ previews }) {
   }, [])
 
   return (
-    <div className="absolute inset-0 z-10 flex flex-col overflow-hidden rounded-2xl">
+    <div className="absolute inset-0 z-10 flex flex-col overflow-hidden rounded-2xl border border-white/10">
       {/* Ghosted selfies as background */}
       <div className="absolute inset-0 flex">
         <div className="relative flex-1 overflow-hidden">
@@ -90,7 +90,7 @@ function AnalyzingOverlay({ previews }) {
       </div>
 
       {/* Dark overlay */}
-      <div className="absolute inset-0 bg-zinc-950/88" />
+      <div className="absolute inset-0 bg-zinc-950/90" />
 
       {/* Content */}
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-8 p-6">

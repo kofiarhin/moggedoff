@@ -5,7 +5,7 @@ function WinnerPhoto({ src, label, glow, badgeText, badgeColor }) {
   return (
     <div className="relative">
       <div
-        className="overflow-hidden rounded-2xl"
+        className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]"
         style={{
           aspectRatio: '4 / 5',
           animation: glow ? 'winner-glow 2s ease-out 0.5s infinite' : undefined,
@@ -18,7 +18,7 @@ function WinnerPhoto({ src, label, glow, badgeText, badgeColor }) {
             className="winner-enter h-full w-full object-cover object-top"
           />
         ) : (
-          <div className="h-full w-full bg-zinc-100" />
+          <div className="h-full w-full bg-white/[0.04]" />
         )}
       </div>
       <div className="badge-pop absolute left-3 top-3">
@@ -39,12 +39,12 @@ function BattleResult({ status, result, error, canRetry, onRetry, previews }) {
 
   if (status === 'error') {
     return (
-      <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-[0_20px_40px_-24px_rgba(63,63,70,0.35)]">
+      <div className="rounded-2xl border border-white/10 bg-[#19191b] p-5 shadow-[0_24px_70px_-48px_rgba(0,0,0,0.95)]">
         <InlineAlert title="Battle paused" message={error?.message} />
         {canRetry ? (
           <button
             type="button"
-            className="mt-4 rounded-lg bg-zinc-950 px-4 py-2 text-sm font-semibold text-white transition active:translate-y-px disabled:cursor-not-allowed disabled:bg-zinc-300"
+            className="mt-4 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200 active:translate-y-px disabled:cursor-not-allowed disabled:bg-zinc-700 disabled:text-zinc-400"
             onClick={onRetry}
           >
             Retry analysis
@@ -63,7 +63,19 @@ function BattleResult({ status, result, error, canRetry, onRetry, previews }) {
     const shareB = 100 - shareA
 
     return (
-      <div>
+      <div className="rounded-2xl border border-white/10 bg-[#19191b] p-5 shadow-[0_24px_70px_-48px_rgba(0,0,0,0.95)]">
+        <div className="mb-5 flex items-end justify-between gap-4 border-b border-white/10 pb-5">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-rose-300">
+              Result
+            </p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white">
+              Battle complete
+            </h2>
+          </div>
+          <p className="hidden text-sm text-zinc-500 sm:block">Scores are photo signals only.</p>
+        </div>
+
         {isTie ? (
           <div className="grid grid-cols-2 gap-3">
             {['A', 'B'].map((key) => (
@@ -83,18 +95,13 @@ function BattleResult({ status, result, error, canRetry, onRetry, previews }) {
             label={winner}
             glow
             badgeText="Winner"
-            badgeColor="bg-rose-700"
+            badgeColor="bg-rose-600"
           />
         )}
 
         <div className="fade-up mt-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-rose-700">
-            Result
-          </p>
-          <h2 className="mt-2 text-3xl font-semibold tracking-tight text-zinc-950">
-            {winnerText}
-          </h2>
-          <p className="mt-2 text-sm leading-6 text-zinc-600">{verdict}</p>
+          <h3 className="text-3xl font-semibold tracking-tight text-white">{winnerText}</h3>
+          <p className="mt-2 text-sm leading-6 text-zinc-400">{verdict}</p>
         </div>
 
         <div className="fade-up-delayed mt-5 space-y-3" aria-label="Score comparison">
@@ -104,24 +111,24 @@ function BattleResult({ status, result, error, canRetry, onRetry, previews }) {
               return (
                 <div
                   key={key}
-                  className={`rounded-xl border p-3 ${isWinner ? 'border-rose-200 bg-rose-50' : 'border-zinc-200 bg-zinc-50'}`}
+                  className={`rounded-xl border p-3 ${isWinner ? 'border-rose-500/40 bg-rose-950/25' : 'border-white/10 bg-white/[0.04]'}`}
                 >
                   <p
-                    className={`text-xs font-medium ${isWinner ? 'text-rose-700' : 'text-zinc-500'}`}
+                    className={`text-xs font-medium ${isWinner ? 'text-rose-300' : 'text-zinc-500'}`}
                   >
                     Selfie {key}
-                    {isWinner ? ' — winner' : ''}
+                    {isWinner ? ' - winner' : ''}
                   </p>
-                  <p className="mt-1 font-mono text-2xl font-semibold text-zinc-950">
+                  <p className="mt-1 font-mono text-2xl font-semibold text-white">
                     {images[key].score.toFixed(1)}
                   </p>
                 </div>
               )
             })}
           </div>
-          <div className="h-2.5 overflow-hidden rounded-full bg-zinc-200" aria-hidden="true">
+          <div className="h-2.5 overflow-hidden rounded-full bg-white/10" aria-hidden="true">
             <div
-              className={`h-full transition-[width] duration-700 ${isTie ? 'bg-zinc-400' : 'bg-rose-700'}`}
+              className={`h-full transition-[width] duration-700 ${isTie ? 'bg-zinc-500' : 'bg-rose-500'}`}
               style={{ width: `${shareA}%` }}
             />
           </div>
@@ -132,7 +139,7 @@ function BattleResult({ status, result, error, canRetry, onRetry, previews }) {
           </p>
         </div>
 
-        <p className="mt-5 border-t border-zinc-200 pt-4 text-xs leading-5 text-zinc-500">
+        <p className="mt-5 border-t border-white/10 pt-4 text-xs leading-5 text-zinc-500">
           For entertainment only. Results reflect photo analysis, not personal worth.
         </p>
       </div>
@@ -140,12 +147,12 @@ function BattleResult({ status, result, error, canRetry, onRetry, previews }) {
   }
 
   return (
-    <div className="rounded-2xl border border-dashed border-zinc-300 bg-white/75 p-5">
+    <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.03] p-5">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">Waiting</p>
-      <h2 className="mt-3 text-2xl font-semibold tracking-tight text-zinc-950">
+      <h2 className="mt-3 text-2xl font-semibold tracking-tight text-white">
         Results appear here
       </h2>
-      <p className="mt-3 text-sm leading-6 text-zinc-600">
+      <p className="mt-3 text-sm leading-6 text-zinc-400">
         Add two valid selfies, then run the battle. The app compares photo quality, face angle, and
         expression signals.
       </p>
