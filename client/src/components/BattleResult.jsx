@@ -1,8 +1,38 @@
-import AnalysisMeter from './AnalysisMeter'
 import InlineAlert from './InlineAlert'
 import SkeletonResult from './SkeletonResult'
 
-function BattleResult({ status, result, error, canRetry, onRetry }) {
+function WinnerPhoto({ src, label, glow, badgeText, badgeColor }) {
+  return (
+    <div className="relative">
+      <div
+        className="overflow-hidden rounded-2xl"
+        style={{
+          aspectRatio: '4 / 5',
+          animation: glow ? 'winner-glow 2s ease-out 0.5s infinite' : undefined,
+        }}
+      >
+        {src ? (
+          <img
+            src={src}
+            alt={`Selfie ${label}`}
+            className="winner-enter h-full w-full object-cover object-top"
+          />
+        ) : (
+          <div className="h-full w-full bg-zinc-100" />
+        )}
+      </div>
+      <div className="badge-pop absolute left-3 top-3">
+        <span
+          className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest text-white shadow-lg ${badgeColor}`}
+        >
+          {badgeText}
+        </span>
+      </div>
+    </div>
+  )
+}
+
+function BattleResult({ status, result, error, canRetry, onRetry, previews }) {
   if (status === 'pending') {
     return <SkeletonResult />
   }
@@ -25,24 +55,83 @@ function BattleResult({ status, result, error, canRetry, onRetry }) {
   }
 
   if (status === 'success' && result) {
-    const winnerText = result.winner === 'tie' ? 'Too close to call' : `Selfie ${result.winner} wins`
+    const { winner, verdict, images } = result
+    const isTie = winner === 'tie'
+    const winnerText = isTie ? 'Too close to call' : `Selfie ${winner} wins`
+    const total = Math.max(images.A.score + images.B.score, 1)
+    const shareA = Math.round((images.A.score / total) * 100)
+    const shareB = 100 - shareA
 
     return (
-      <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-[0_20px_40px_-24px_rgba(63,63,70,0.35)]">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-rose-700">
-          Result
-        </p>
-        <h2 className="mt-3 text-3xl font-semibold tracking-tight text-zinc-950">
-          {winnerText}
-        </h2>
-        <p className="mt-3 text-sm leading-6 text-zinc-600">{result.verdict}</p>
-        <div className="mt-6">
-          <AnalysisMeter
-            scoreA={result.images.A.score}
-            scoreB={result.images.B.score}
-            winner={result.winner}
+      <div>
+        {isTie ? (
+          <div className="grid grid-cols-2 gap-3">
+            {['A', 'B'].map((key) => (
+              <WinnerPhoto
+                key={key}
+                src={previews?.[`selfie${key}`]}
+                label={key}
+                glow={false}
+                badgeText="Draw"
+                badgeColor="bg-zinc-700"
+              />
+            ))}
+          </div>
+        ) : (
+          <WinnerPhoto
+            src={previews?.[`selfie${winner}`]}
+            label={winner}
+            glow
+            badgeText="Winner"
+            badgeColor="bg-rose-700"
           />
+        )}
+
+        <div className="fade-up mt-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-rose-700">
+            Result
+          </p>
+          <h2 className="mt-2 text-3xl font-semibold tracking-tight text-zinc-950">
+            {winnerText}
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-zinc-600">{verdict}</p>
         </div>
+
+        <div className="fade-up-delayed mt-5 space-y-3" aria-label="Score comparison">
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            {['A', 'B'].map((key) => {
+              const isWinner = !isTie && key === winner
+              return (
+                <div
+                  key={key}
+                  className={`rounded-xl border p-3 ${isWinner ? 'border-rose-200 bg-rose-50' : 'border-zinc-200 bg-zinc-50'}`}
+                >
+                  <p
+                    className={`text-xs font-medium ${isWinner ? 'text-rose-700' : 'text-zinc-500'}`}
+                  >
+                    Selfie {key}
+                    {isWinner ? ' — winner' : ''}
+                  </p>
+                  <p className="mt-1 font-mono text-2xl font-semibold text-zinc-950">
+                    {images[key].score.toFixed(1)}
+                  </p>
+                </div>
+              )
+            })}
+          </div>
+          <div className="h-2.5 overflow-hidden rounded-full bg-zinc-200" aria-hidden="true">
+            <div
+              className={`h-full transition-[width] duration-700 ${isTie ? 'bg-zinc-400' : 'bg-rose-700'}`}
+              style={{ width: `${shareA}%` }}
+            />
+          </div>
+          <p className="text-xs text-zinc-500">
+            {isTie
+              ? 'Scores are effectively tied.'
+              : `Meter split: Selfie A ${shareA}%, Selfie B ${shareB}%.`}
+          </p>
+        </div>
+
         <p className="mt-5 border-t border-zinc-200 pt-4 text-xs leading-5 text-zinc-500">
           For entertainment only. Results reflect photo analysis, not personal worth.
         </p>
@@ -52,15 +141,13 @@ function BattleResult({ status, result, error, canRetry, onRetry }) {
 
   return (
     <div className="rounded-2xl border border-dashed border-zinc-300 bg-white/75 p-5">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
-        Waiting
-      </p>
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">Waiting</p>
       <h2 className="mt-3 text-2xl font-semibold tracking-tight text-zinc-950">
         Results appear here
       </h2>
       <p className="mt-3 text-sm leading-6 text-zinc-600">
-        Add two valid selfies, then run the battle. The app compares photo quality,
-        face angle, and expression signals.
+        Add two valid selfies, then run the battle. The app compares photo quality, face angle, and
+        expression signals.
       </p>
     </div>
   )

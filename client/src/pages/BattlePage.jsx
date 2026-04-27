@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import BattleResult from '../components/BattleResult'
 import BattleUploader from '../components/BattleUploader'
 import { useAnalyzeBattle } from '../hooks/mutations/useAnalyzeBattle'
@@ -25,13 +25,16 @@ function BattlePage() {
   const [errors, setErrors] = useState(initialErrors)
   const analyzeMutation = useAnalyzeBattle()
 
+  const previewsRef = useRef(previews)
+  previewsRef.current = previews
+
   useEffect(() => {
     return () => {
-      Object.values(previews).forEach((url) => {
+      Object.values(previewsRef.current).forEach((url) => {
         if (url) URL.revokeObjectURL(url)
       })
     }
-  }, [previews])
+  }, [])
 
   const canAnalyze = useMemo(() => {
     return Boolean(files.selfieA && files.selfieB && !errors.selfieA && !errors.selfieB)
@@ -119,6 +122,7 @@ function BattlePage() {
             error={analyzeMutation.error}
             canRetry={canAnalyze}
             onRetry={handleAnalyze}
+            previews={previews}
           />
         </section>
       </div>
