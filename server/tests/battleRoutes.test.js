@@ -1,13 +1,22 @@
 const request = require('supertest');
 const app = require('../app');
 const azureFaceService = require('../services/azureFaceService');
+const { normalizeImageForFaceApi } = require('../services/imageProcessingService');
 const { createHttpError } = require('../utils/httpErrors');
 
 jest.mock('../services/azureFaceService');
+jest.mock('../services/imageProcessingService', () => ({
+  normalizeImageForFaceApi: jest.fn((file) => Promise.resolve(file.buffer)),
+}));
 
 const pngBuffer = Buffer.from([
   0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
   0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52,
+]);
+
+const heicBuffer = Buffer.from([
+  0x00, 0x00, 0x00, 0x18, 0x66, 0x74, 0x79, 0x70,
+  0x68, 0x65, 0x69, 0x63, 0x00, 0x00, 0x00, 0x00,
 ]);
 
 function normalizedFace(overrides = {}) {
@@ -38,6 +47,7 @@ function postWithImages() {
 describe('battle routes', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    normalizeImageForFaceApi.mockImplementation((file) => Promise.resolve(file.buffer));
   });
 
   test('health route responds', async () => {
@@ -71,6 +81,31 @@ describe('battle routes', () => {
 
     expect(response.status).toBe(400);
     expect(response.body.error.code).toBe('INVALID_FILE_TYPE');
+  });
+
+  test('mobile HEIC uploads are accepted and normalized before analysis', async () => {
+    azureFaceService.analyzeFace.mockResolvedValue([normalizedFace()]);
+
+    const response = await request(app)
+      .post('/api/battles/analyze')
+      .attach('selfieA', heicBuffer, { filename: 'a.heic', contentType: 'image/heic' })
+      .attach('selfieB', pngBuffer, { filename: 'b.png', contentType: 'image/png' });
+
+    expect(response.status).toBe(200);
+    expect(normalizeImageForFaceApi).toHaveBeenCalledTimes(2);
+    expect(azureFaceService.analyzeFace).toHaveBeenCalledTimes(2);
+  });
+
+  test('ambiguous mobile upload MIME is accepted when image bytes are valid', async () => {
+    azureFaceService.analyzeFace.mockResolvedValue([normalizedFace()]);
+
+    const response = await request(app)
+      .post('/api/battles/analyze')
+      .attach('selfieA', pngBuffer, { filename: 'a', contentType: 'application/octet-stream' })
+      .attach('selfieB', pngBuffer, { filename: 'b', contentType: 'application/octet-stream' });
+
+    expect(response.status).toBe(200);
+    expect(normalizeImageForFaceApi).toHaveBeenCalledTimes(2);
   });
 
   test('no face result returns NO_FACE_DETECTED', async () => {

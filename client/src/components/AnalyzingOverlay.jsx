@@ -47,14 +47,18 @@ function AnalyzingOverlay({ previews }) {
   const [textVisible, setTextVisible] = useState(true)
 
   useEffect(() => {
+    let timeoutId
     const id = setInterval(() => {
       setTextVisible(false)
-      setTimeout(() => {
+      timeoutId = setTimeout(() => {
         setPhaseIndex((i) => (i + 1) % PHASES.length)
         setTextVisible(true)
       }, 180)
     }, 1600)
-    return () => clearInterval(id)
+    return () => {
+      clearInterval(id)
+      clearTimeout(timeoutId)
+    }
   }, [])
 
   return (

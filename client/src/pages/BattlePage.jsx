@@ -27,7 +27,10 @@ function BattlePage() {
   const analyzeMutation = useAnalyzeBattle()
 
   const previewsRef = useRef(previews)
-  previewsRef.current = previews
+
+  useEffect(() => {
+    previewsRef.current = previews
+  }, [previews])
 
   useEffect(() => {
     return () => {

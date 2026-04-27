@@ -1,4 +1,5 @@
 import { useId, useRef, useState } from 'react'
+import { ACCEPTED_IMAGE_INPUT } from '../constants/constants'
 
 function ImageDropzone({
   label,
@@ -31,7 +32,7 @@ function ImageDropzone({
         ref={inputRef}
         id={inputId}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept={ACCEPTED_IMAGE_INPUT}
         className="sr-only"
         disabled={disabled}
         onChange={(event) => handleFiles(event.target.files)}
@@ -69,7 +70,7 @@ function ImageDropzone({
       </button>
       <div className="flex min-h-5 items-start justify-between gap-3">
         <p className={error ? 'text-sm text-rose-700' : 'text-sm text-zinc-500'}>
-          {error || 'JPEG, PNG, or WEBP under 5 MB.'}
+          {error || 'Images from phone, camera, or browser under 5 MB.'}
         </p>
         {file ? (
           <button

@@ -55,7 +55,23 @@ describe('BattlePage', () => {
       },
     })
 
-    expect(screen.getByText('Use a JPEG, PNG, or WEBP image.')).toBeInTheDocument()
+    expect(screen.getByText('Use a valid image file.')).toBeInTheDocument()
+  })
+
+  test('mobile image extensions are accepted when browser MIME is missing', async () => {
+    const user = userEvent.setup({ applyAccept: false })
+    renderPage()
+
+    await user.upload(
+      screen.getByLabelText('Selfie A'),
+      new File(['image'], 'phone.heic', { type: '' }),
+    )
+    await user.upload(
+      screen.getByLabelText('Selfie B'),
+      new File(['image'], 'camera.avif', { type: 'application/octet-stream' }),
+    )
+
+    expect(screen.getByRole('button', { name: /analyze battle/i })).toBeEnabled()
   })
 
   test('successful mutation displays winner and scores', async () => {
@@ -90,7 +106,7 @@ describe('BattlePage', () => {
     await user.upload(screen.getByLabelText('Selfie B'), imageFile('b.png'))
     await user.click(screen.getByRole('button', { name: /analyze battle/i }))
 
-    expect(await screen.findByText('Uploading, analyzing, comparing.')).toBeInTheDocument()
+    expect(await screen.findByText('Uploading images')).toBeInTheDocument()
   })
 
   test('error mutation displays inline error and retry option', async () => {

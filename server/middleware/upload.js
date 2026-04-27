@@ -1,6 +1,10 @@
 const multer = require('multer');
+const path = require('path');
 const { config } = require('../config/env');
-const { ACCEPTED_IMAGE_TYPES } = require('../constants/faceAttributes');
+const {
+  ACCEPTED_IMAGE_EXTENSIONS,
+  ACCEPTED_IMAGE_TYPES,
+} = require('../constants/faceAttributes');
 const { createHttpError } = require('../utils/httpErrors');
 
 const storage = multer.memoryStorage();
@@ -12,8 +16,14 @@ const upload = multer({
     files: 2,
   },
   fileFilter: (req, file, callback) => {
-    if (!ACCEPTED_IMAGE_TYPES.includes(file.mimetype)) {
-      callback(createHttpError(400, 'INVALID_FILE_TYPE', 'Upload JPEG, PNG, or WEBP images only.'));
+    const mimetype = file.mimetype?.toLowerCase();
+    const extension = path.extname(file.originalname || '').toLowerCase();
+    const hasAcceptedType = ACCEPTED_IMAGE_TYPES.includes(mimetype);
+    const hasAcceptedExtension = ACCEPTED_IMAGE_EXTENSIONS.includes(extension);
+    const hasAmbiguousMobileType = !mimetype || mimetype === 'application/octet-stream';
+
+    if (!hasAcceptedType && !hasAcceptedExtension && !hasAmbiguousMobileType) {
+      callback(createHttpError(400, 'INVALID_FILE_TYPE', 'Upload a valid image file.'));
       return;
     }
 

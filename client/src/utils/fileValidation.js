@@ -1,8 +1,14 @@
 import {
+  ACCEPTED_IMAGE_EXTENSIONS,
   ACCEPTED_IMAGE_TYPES,
   MAX_IMAGE_SIZE_BYTES,
   MAX_IMAGE_SIZE_MB,
 } from '../constants/constants'
+
+function getExtension(fileName = '') {
+  const dotIndex = fileName.lastIndexOf('.')
+  return dotIndex >= 0 ? fileName.slice(dotIndex).toLowerCase() : ''
+}
 
 export function validateImageFile(file) {
   if (!file) {
@@ -13,11 +19,17 @@ export function validateImageFile(file) {
     }
   }
 
-  if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+  const fileType = file.type?.toLowerCase()
+  const extension = getExtension(file.name)
+  const hasAcceptedType = ACCEPTED_IMAGE_TYPES.includes(fileType)
+  const hasAcceptedExtension = ACCEPTED_IMAGE_EXTENSIONS.includes(extension)
+  const hasAmbiguousMobileType = !fileType || fileType === 'application/octet-stream'
+
+  if (!hasAcceptedType && !hasAcceptedExtension && !hasAmbiguousMobileType) {
     return {
       valid: false,
       code: 'INVALID_FILE_TYPE',
-      message: 'Use a JPEG, PNG, or WEBP image.',
+      message: 'Use a valid image file.',
     }
   }
 
