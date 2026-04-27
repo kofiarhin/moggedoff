@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import AnalyzingOverlay from '../components/AnalyzingOverlay'
 import BattleResult from '../components/BattleResult'
 import BattleUploader from '../components/BattleUploader'
 import { useAnalyzeBattle } from '../hooks/mutations/useAnalyzeBattle'
@@ -100,7 +101,8 @@ function BattlePage() {
             The app compares image quality, face angle, and expression signals,
             then returns a quick winner for fun.
           </p>
-          <div className="mt-8">
+          <div className="relative mt-8">
+            {analyzeMutation.isPending && <AnalyzingOverlay previews={previews} />}
             <BattleUploader
               files={files}
               previews={previews}
