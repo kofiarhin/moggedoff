@@ -57,3 +57,13 @@ After appending each task entry, update `_handoff/current.md` with the latest cu
 - Review result: `reviewed`; no in-scope defects found. Frontend design pre-flight checked: no new global state, existing mobile layout remains responsive, no `h-screen` introduced, no new effects or dependencies added, existing empty/loading/error states remain represented, and no emojis were added.
 - Blockers: `none`
 - Next step: `write review, summary, final health check`
+
+### `2026-05-13 21:16` - `TASK-001`
+
+- Status: `Done`
+- Lifecycle transition reached: `Planned -> Ready -> In Progress -> Verified -> Reviewed -> Done`
+- Files changed: `.gitignore`, `server/controllers/battleController.js`, `server/routes/battleRoutes.js`, `server/services/battleHistoryService.js`, `server/tests/battleRoutes.test.js`, `_task/2026-05-13-battle-history-saved-results.md`, `_decisions/2026-05-13-battle-history-storage.md`
+- Verification result: `npm test -- server/tests/battleRoutes.test.js` was attempted and the server tests passed, but the overall command exited 1 because the root script forwarded the server path into client Vitest where no matching client tests existed. Corrected verification commands were run: `npm run test:server -- server/tests/battleRoutes.test.js` passed with 1 test suite and 14 tests passed; `npm run test:server` passed with 2 test suites and 20 tests passed.
+- Review result: `reviewed`; no in-scope code defects found. Scope stayed backend-only for single-task execution. Storage durability limitation documented in `_decisions/2026-05-13-battle-history-storage.md`.
+- Blockers: `none`
+- Next step: `write review, summary, final health check, then stop because execution preference is single-task`

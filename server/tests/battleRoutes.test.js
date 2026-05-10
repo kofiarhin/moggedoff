@@ -1,3 +1,6 @@
+const fs = require('fs/promises');
+const os = require('os');
+const path = require('path');
 const request = require('supertest');
 const app = require('../app');
 const azureFaceService = require('../services/azureFaceService');
@@ -18,6 +21,8 @@ const heicBuffer = Buffer.from([
   0x00, 0x00, 0x00, 0x18, 0x66, 0x74, 0x79, 0x70,
   0x68, 0x65, 0x69, 0x63, 0x00, 0x00, 0x00, 0x00,
 ]);
+
+const historyFile = path.join(os.tmpdir(), 'moggoff-battle-history-test.json');
 
 function normalizedFace(overrides = {}) {
   return {
@@ -45,9 +50,16 @@ function postWithImages() {
 }
 
 describe('battle routes', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.clearAllMocks();
+    process.env.BATTLE_HISTORY_FILE = historyFile;
+    await fs.rm(historyFile, { force: true });
     normalizeImageForFaceApi.mockImplementation((file) => Promise.resolve(file.buffer));
+  });
+
+  afterAll(async () => {
+    await fs.rm(historyFile, { force: true });
+    delete process.env.BATTLE_HISTORY_FILE;
   });
 
   test('health route responds', async () => {
@@ -118,6 +130,18 @@ describe('battle routes', () => {
     expect(response.body.error.code).toBe('NO_FACE_DETECTED');
   });
 
+  test('failed analysis does not save history', async () => {
+    azureFaceService.analyzeFace.mockResolvedValueOnce([]);
+    azureFaceService.analyzeFace.mockResolvedValueOnce([normalizedFace()]);
+
+    await postWithImages();
+
+    const historyResponse = await request(app).get('/api/battles');
+
+    expect(historyResponse.status).toBe(200);
+    expect(historyResponse.body.battles).toEqual([]);
+  });
+
   test('multiple face result returns MULTIPLE_FACES_DETECTED', async () => {
     azureFaceService.analyzeFace.mockResolvedValueOnce([normalizedFace(), normalizedFace()]);
     azureFaceService.analyzeFace.mockResolvedValueOnce([normalizedFace()]);
@@ -144,10 +168,62 @@ describe('battle routes', () => {
     const response = await postWithImages();
 
     expect(response.status).toBe(200);
+    expect(response.body.id).toBe(response.body.battleId);
     expect(response.body.battleId).toMatch(/^battle_/);
     expect(response.body.winner).toBe('A');
+    expect(response.body.score).toEqual(expect.any(Number));
+    expect(response.body.createdAt).toEqual(expect.any(String));
+    expect(response.body.selfieAName).toBe('a.png');
+    expect(response.body.selfieBName).toBe('b.png');
+    expect(response.body.analysisSummary).toEqual(expect.any(String));
     expect(response.body.images.A.score).toEqual(expect.any(Number));
     expect(response.body.images.B.score).toEqual(expect.any(Number));
     expect(response.body.images.A.attributes).toBeDefined();
+  });
+
+  test('successful analysis saves history for list and detail routes', async () => {
+    azureFaceService.analyzeFace.mockResolvedValueOnce([normalizedFace({ qualityForRecognition: 'high' })]);
+    azureFaceService.analyzeFace.mockResolvedValueOnce([normalizedFace({ qualityForRecognition: 'low' })]);
+
+    const analyzeResponse = await postWithImages();
+    const historyResponse = await request(app).get('/api/battles');
+    const detailResponse = await request(app).get(`/api/battles/${analyzeResponse.body.id}`);
+
+    expect(historyResponse.status).toBe(200);
+    expect(historyResponse.body.battles).toHaveLength(1);
+    expect(historyResponse.body.battles[0]).toEqual({
+      id: analyzeResponse.body.id,
+      winner: 'A',
+      score: analyzeResponse.body.score,
+      createdAt: analyzeResponse.body.createdAt,
+      selfieAName: 'a.png',
+      selfieBName: 'b.png',
+      analysisSummary: analyzeResponse.body.analysisSummary,
+    });
+
+    expect(detailResponse.status).toBe(200);
+    expect(detailResponse.body.battle).toEqual(historyResponse.body.battles[0]);
+  });
+
+  test('missing battle detail returns BATTLE_NOT_FOUND', async () => {
+    const response = await request(app).get('/api/battles/battle_missing');
+
+    expect(response.status).toBe(404);
+    expect(response.body.error.code).toBe('BATTLE_NOT_FOUND');
+  });
+
+  test('delete removes one saved battle result', async () => {
+    azureFaceService.analyzeFace.mockResolvedValueOnce([normalizedFace({ qualityForRecognition: 'high' })]);
+    azureFaceService.analyzeFace.mockResolvedValueOnce([normalizedFace({ qualityForRecognition: 'low' })]);
+
+    const analyzeResponse = await postWithImages();
+    const deleteResponse = await request(app).delete(`/api/battles/${analyzeResponse.body.id}`);
+    const historyResponse = await request(app).get('/api/battles');
+    const secondDeleteResponse = await request(app).delete(`/api/battles/${analyzeResponse.body.id}`);
+
+    expect(deleteResponse.status).toBe(204);
+    expect(historyResponse.body.battles).toEqual([]);
+    expect(secondDeleteResponse.status).toBe(404);
+    expect(secondDeleteResponse.body.error.code).toBe('BATTLE_NOT_FOUND');
   });
 });

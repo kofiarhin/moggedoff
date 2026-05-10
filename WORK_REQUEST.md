@@ -8,7 +8,7 @@ The workflow will ask clarifying questions, generate a saved spec in `_spec/`, c
 
 ## Request
 
-`workflow add loading state to battle analysis`
+`workflow add battle history with saved results, detail view, and delete action`
 
 ## Question Preference
 

@@ -4,11 +4,11 @@ This file is the live resume state for the active workflow. Keep it current afte
 
 ## Current Request
 
-`workflow add loading state to battle analysis`
+`workflow add battle history with saved results, detail view, and delete action`
 
 ## Request ID
 
-`2026-05-13-battle-analysis-loading-state`
+`2026-05-13-battle-history-saved-results`
 
 ## Current Phase
 
@@ -16,23 +16,23 @@ This file is the live resume state for the active workflow. Keep it current afte
 
 ## Current Spec File
 
-`_spec/2026-05-13-battle-analysis-loading-state.md`
+`_spec/2026-05-13-battle-history-saved-results.md`
 
 ## Current Task Plan File
 
-`_task/2026-05-13-battle-analysis-loading-state.md`
+`_task/2026-05-13-battle-history-saved-results.md`
 
 ## Current Review File
 
-`_review/2026-05-13-battle-analysis-loading-state.md`
+`_review/2026-05-13-battle-history-saved-results.md`
 
 ## Current Summary File
 
-`_summary/2026-05-13-battle-analysis-loading-state.md`
+`_summary/2026-05-13-battle-history-saved-results.md`
 
 ## Last Completed Task
 
-`TASK-001: Show explicit loading copy while battle analysis runs`
+`TASK-001: Save successful battles and expose history API`
 
 ## Current Task
 
@@ -40,7 +40,7 @@ This file is the live resume state for the active workflow. Keep it current afte
 
 ## Next Task
 
-`final response`
+`continue with TASK-002 when requested`
 
 ## Blockers
 
@@ -48,7 +48,7 @@ This file is the live resume state for the active workflow. Keep it current afte
 
 ## Verification Status
 
-`passed: cd client && npm test -- BattleUploader.test.jsx`
+`passed: npm run test:server -- server/tests/battleRoutes.test.js; npm run test:server`
 
 ## Workflow Health Status
 
@@ -60,6 +60,10 @@ This file is the live resume state for the active workflow. Keep it current afte
 
 ## Notes For Continuation
 
-- User accepted default loading behavior: pending analysis should show explicit copy like `Analyzing battle... This can take a moment.`
-- TASK-001 is complete. `SkeletonResult` now shows explicit pending analysis copy and focused Vitest verification passed.
-- Existing dirty worktree includes unrelated deleted agent/config files and modified project files; avoid unrelated changes.
+- Active request is synced to `WORK_REQUEST.md`.
+- Spec and task plan are saved.
+- Frontend work is in scope for later tasks, so `design-taste-frontend` is required before UI output and before final frontend pre-flight.
+- Current execution is single-task mode: implement only `TASK-001`, then review, summarize, and stop.
+- TASK-001 is complete. Backend now auto-saves successful analysis records and exposes list/detail/delete endpoints.
+- `npm test -- server/tests/battleRoutes.test.js` is not a valid focused command for this repo because it forwards the path to client Vitest; use `npm run test:server -- server/tests/battleRoutes.test.js`.
+- Review and summary are saved. Stop here because execution preference was single-task.
