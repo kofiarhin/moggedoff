@@ -36,6 +36,14 @@ describe('BattlePage', () => {
     expect(screen.getByRole('button', { name: /analyze battle/i })).toBeDisabled()
   })
 
+  test('shows an empty state before a battle runs', () => {
+    renderPage()
+
+    expect(
+      screen.getByText('No battle result yet. Upload two selfies to start a matchup.'),
+    ).toBeInTheDocument()
+  })
+
   test('valid image selections enable analyze', async () => {
     const user = userEvent.setup({ applyAccept: false })
     renderPage()
@@ -106,6 +114,9 @@ describe('BattlePage', () => {
     await user.upload(screen.getByLabelText('Selfie B'), imageFile('b.png'))
     await user.click(screen.getByRole('button', { name: /analyze battle/i }))
 
+    expect(
+      await screen.findByText('Analyzing battle... This can take a moment.'),
+    ).toBeInTheDocument()
     expect(await screen.findByText('Uploading images')).toBeInTheDocument()
   })
 
@@ -148,6 +159,8 @@ describe('BattlePage', () => {
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /analyze battle/i })).toBeDisabled()
     })
-    expect(screen.getByText('Results appear here')).toBeInTheDocument()
+    expect(
+      screen.getByText('No battle result yet. Upload two selfies to start a matchup.'),
+    ).toBeInTheDocument()
   })
 })

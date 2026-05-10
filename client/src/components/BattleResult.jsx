@@ -148,14 +148,27 @@ function BattleResult({ status, result, error, canRetry, onRetry, previews }) {
 
   return (
     <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.03] p-5">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">Waiting</p>
-      <h2 className="mt-3 text-2xl font-semibold tracking-tight text-white">
-        Results appear here
-      </h2>
-      <p className="mt-3 text-sm leading-6 text-zinc-400">
-        Add two valid selfies, then run the battle. The app compares photo quality, face angle, and
-        expression signals.
-      </p>
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+        <div className="grid h-20 w-20 shrink-0 grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-[#19191b] p-2">
+          {['A', 'B', 'VS', ''].map((label, index) => (
+            <div
+              key={`${label}-${index}`}
+              className="flex items-center justify-center rounded-xl bg-white/[0.04] text-xs font-semibold text-zinc-500"
+              aria-hidden="true"
+            >
+              {label}
+            </div>
+          ))}
+        </div>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+            Empty state
+          </p>
+          <h2 className="mt-3 text-2xl font-semibold tracking-tight text-white">
+            No battle result yet. Upload two selfies to start a matchup.
+          </h2>
+        </div>
+      </div>
     </div>
   )
 }
