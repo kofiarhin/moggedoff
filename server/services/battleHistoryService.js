@@ -9,11 +9,13 @@ function normalizeRecord(record) {
   return {
     id: record.id,
     winner: record.winner,
+    loser: record.loser || (record.winner === 'A' ? 'B' : record.winner === 'B' ? 'A' : 'tie'),
     score: record.score,
     createdAt: record.createdAt,
     selfieAName: record.selfieAName,
     selfieBName: record.selfieBName,
     analysisSummary: record.analysisSummary,
+    battleType: record.battleType || 'selfie',
   };
 }
 

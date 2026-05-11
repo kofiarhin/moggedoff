@@ -36,43 +36,51 @@ Customize placeholders before using this in a production project. MERN is the de
 1. If the latest user prompt looks like project work, treat it as the active work request and route it through `RUN_WORKFLOW.md`.
 2. Project work includes requests such as `implement`, `fix`, `create`, `generate`, `audit`, `refactor`, `test`, `document`, `deploy`, `review`, or similar software changes.
 3. Automatically sync the active user prompt into `WORK_REQUEST.md`. Do not ask the user to manually edit workflow docs first.
-4. Ask focused clarifying questions before implementation unless the prompt explicitly says `skip questions`.
-5. Keep asking until there is about 90% understanding of the request.
-6. Clarify the goal, users, exact behavior, edge cases, UI/API expectations, data model, constraints, success criteria, and out-of-scope items.
-7. If the request is tiny and obvious, ask fewer questions, but still avoid touching code until the spec and task plan exist.
-8. Do not touch code during the questioning phase.
-9. If the user says `skip questions`, generate a best-effort spec and clearly record assumptions.
-10. No implementation is allowed without a saved spec in `_spec/`.
-11. No implementation is allowed without a saved task plan in `_task/`.
-12. Before planning, read `_handoff/current.md` if it exists, `_progress/progress.md`, and the latest relevant file in `_summary/`.
-13. Before touching code for any task, read `_handoff/current.md`, `_progress/progress.md`, and the latest relevant file in `_summary/`.
-14. Read `RUN_WORKFLOW.md` before planning or editing.
-15. Read `docs/PROJECT_CONTEXT.md` and relevant supporting docs before implementation, updating them only when durable project facts change.
-16. Generate a timestamped or slugged spec file in `_spec/`, for example `_spec/2026-05-10-add-dark-theme.md`.
-17. Generate a vertical task plan in `_task/` from the saved spec.
-18. Tasks must be vertical slices of user-visible or independently verifiable value, not vague frontend/backend/database layers.
-19. Break work into Ralph Wiggum-style tasks: small, literal, safe, sequential steps that are easy to follow and hard to misinterpret.
-20. Implement tasks sequentially, one task at a time.
-21. Keep changes scoped to the active task.
-22. Never implement unrelated work.
-23. Every task must move through `Planned -> Ready -> In Progress -> Verified -> Reviewed -> Done`.
-24. Allowed terminal task states are `Done`, `Blocked`, and `Needs Human Review`.
-25. A task cannot be `Done` unless verification was attempted and the task was reviewed.
-26. A task cannot move to `Reviewed` unless verification was attempted.
-27. If verification cannot run, the task can be `Needs Human Review`, not `Done`.
-28. Never skip verification. If verification cannot run, document the reason and the best available manual check.
-29. After each task, append progress to `_progress/progress.md`.
-30. After each task, update `_handoff/current.md` so it reflects the latest completed task, current phase, blockers, verification status, and next step.
-31. Always keep `_handoff/current.md` current; do not leave handoff stale after task execution.
-32. The handoff file should allow another agent/session to resume without rereading the entire conversation.
-33. `continue workflow` must start from `_handoff/current.md`.
-34. If `_handoff/current.md` conflicts with `_progress/progress.md`, trust `_progress/progress.md` for completed task history and update handoff accordingly.
-35. After implementation and before the final summary, create a review file in `_review/`.
-36. After the review is complete, create or append a summary in `_summary/` and update `_handoff/current.md`.
-37. Record meaningful architecture or product decisions in `_decisions/`; do not create decision files for routine edits.
-38. Before the final response, run the workflow health check.
-39. Continue to the next task only when the current task is implemented, verified, reviewed, documented, and safe to continue.
-40. Stop if scope is unclear, risky, destructive, unverified, blocked, or requires unavailable access.
+4. Default execution mode is `complete-workflow`.
+5. Execution modes:
+   - `plan-only`: ask questions, write spec, write task plan, then stop.
+   - `single-task`: execute only the next ready task, verify and review it, update artifacts, then stop.
+   - `complete-workflow`: execute all generated tasks sequentially until the request/spec is complete or a stop condition is reached.
+6. Agents must not stop after `TASK-001` unless execution mode is explicitly `single-task` or a stop condition is reached.
+7. Agents must continue through `TASK-002`, `TASK-003`, and later tasks automatically when the current task is `Done` and safe to continue.
+8. Ask focused clarifying questions before implementation unless the prompt explicitly says `skip questions`.
+9. Keep asking until there is about 90% understanding of the request.
+10. Clarify the goal, users, exact behavior, edge cases, UI/API expectations, data model, constraints, success criteria, and out-of-scope items.
+11. If the request is tiny and obvious, ask fewer questions, but still avoid touching code until the spec and task plan exist.
+12. Do not touch code during the questioning phase.
+13. If the user says `skip questions`, generate a best-effort spec and clearly record assumptions.
+14. No implementation is allowed without a saved spec in `_spec/`.
+15. No implementation is allowed without a saved task plan in `_task/`.
+16. Before planning, read `_handoff/current.md` if it exists, `_progress/progress.md`, and the latest relevant file in `_summary/`.
+17. Before touching code for any task, read `_handoff/current.md`, `_progress/progress.md`, and the latest relevant file in `_summary/`.
+18. Read `RUN_WORKFLOW.md` before planning or editing.
+19. Read `docs/PROJECT_CONTEXT.md` and relevant supporting docs before implementation, updating them only when durable project facts change.
+20. Generate a timestamped or slugged spec file in `_spec/`, for example `_spec/2026-05-10-add-dark-theme.md`.
+21. Generate a vertical task plan in `_task/` from the saved spec.
+22. Tasks must be vertical slices of user-visible or independently verifiable value, not vague frontend/backend/database layers.
+23. Break work into Ralph Wiggum-style tasks: small, literal, safe, sequential steps that are easy to follow and hard to misinterpret.
+24. Implement tasks sequentially, one task at a time.
+25. Keep changes scoped to the active task.
+26. Never implement unrelated work.
+27. Every task must move through `Planned -> Ready -> In Progress -> Verified -> Reviewed -> Done`.
+28. Allowed terminal task states are `Done`, `Blocked`, and `Needs Human Review`.
+29. A task cannot be `Done` unless verification was attempted and the task was reviewed.
+30. A task cannot move to `Reviewed` unless verification was attempted.
+31. If verification cannot run, the task can be `Needs Human Review`, not `Done`.
+32. Never skip verification. If verification cannot run, document the reason and the best available manual check.
+33. After each task, append progress to `_progress/progress.md`.
+34. After each task, update `_handoff/current.md` so it reflects the latest completed task, current phase, blockers, verification status, and next step.
+35. Always keep `_handoff/current.md` current; do not leave handoff stale after task execution.
+36. The handoff file should allow another agent/session to resume without rereading the entire conversation.
+37. `continue workflow` must start from `_handoff/current.md`.
+38. If `_handoff/current.md` conflicts with `_progress/progress.md`, trust `_progress/progress.md` for completed task history and update handoff accordingly.
+39. After all executable tasks are complete or a stop condition is reached, create a review file in `_review/`.
+40. After the review is complete, create or append a summary in `_summary/` and update `_handoff/current.md`.
+41. Record meaningful architecture or product decisions in `_decisions/`; do not create decision files for routine edits.
+42. Before the final response, run the workflow health check.
+43. Continue to the next task only when the current task is implemented, verified, reviewed, documented, and safe to continue.
+44. Stop if scope is unclear, risky, destructive, unverified, blocked, or requires unavailable access.
+45. Final review and summary must represent the full completed request or documented stop state, not only the first task.
 
 ## Required Workflow
 
@@ -92,9 +100,11 @@ For a work request:
 7. Read `_handoff/current.md` if it exists, `_progress/progress.md`, the latest relevant `_summary/` entry, and durable supporting docs.
 8. Generate a detailed spec in `_spec/`.
 9. Generate a vertical task plan in `_task/`.
-10. If execution is not allowed yet, stop after saving the spec and task plan.
-11. Execute one task at a time.
-12. For each task:
+10. If execution mode is `plan-only`, stop after saving the spec and task plan.
+11. If execution mode is `single-task`, execute only the next ready task, verify and review it, update artifacts, then stop.
+12. If execution mode is omitted, use `complete-workflow`.
+13. In `complete-workflow`, execute every task in order until all tasks are complete or a stop condition is reached.
+14. For each task:
     - read latest `_progress/progress.md`
     - read relevant `_summary/`
     - inspect the codebase for the current task
@@ -104,17 +114,17 @@ For a work request:
     - fix only in-scope defects
     - append progress to `_progress/progress.md`
     - update `_handoff/current.md`
-    - continue only if safe
-13. After all allowed tasks are complete or the workflow stops, create a review file in `_review/`.
-14. After the review, create or append a summary in `_summary/`.
-15. Run the workflow health check and mark the result as `Passed`, `Partial`, or `Failed`.
-16. Check repository status again:
+    - continue to the next task automatically only when the current task is `Done` and safe
+15. After all allowed tasks are complete or the workflow stops, create a review file in `_review/`.
+16. After the review, create or append a summary in `_summary/`.
+17. Run the workflow health check and mark the result as `Passed`, `Partial`, or `Failed`.
+18. Check repository status again:
 
     ```bash
     git status --short
     ```
 
-17. Summarize results, include the final artifact checklist, and suggest a commit message.
+19. Summarize results, include the final artifact checklist, and suggest a commit message.
 
 ## Continue Workflow Command
 
@@ -128,8 +138,9 @@ If the user says `continue workflow`:
 6. Read the spec referenced by that task plan.
 7. Find the next task whose status is not `Done`.
 8. Continue from that task without asking the original intake questions again unless the request, scope, or acceptance criteria are unclear.
-9. Do not regenerate the entire spec unless the request changed.
-10. If every task is `Done`, continue with any missing `_review/`, `_summary/`, handoff update, workflow health check, or final response steps.
+9. Continue executing remaining tasks sequentially until all tasks are complete or a stop condition is reached.
+10. Do not regenerate the entire spec unless the request changed.
+11. If every task is `Done`, continue with any missing `_review/`, `_summary/`, handoff update, workflow health check, or final response steps.
 
 ## Questioning Rules
 

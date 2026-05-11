@@ -12,6 +12,10 @@ After the review is complete, agents must create or append a summary here. Use t
 _summary/2026-05-10-add-dark-theme.md
 ```
 
+Do not create the final summary until all executable tasks are completed or a stop condition is reached. In default `complete-workflow` mode, the summary must represent the full completed request or documented stop state, not only the first task.
+
+`single-task` remains available only as an explicit optional mode for controlled one-task execution.
+
 Each summary should include:
 
 - Request.

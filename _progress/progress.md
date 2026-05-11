@@ -24,6 +24,16 @@ Allowed terminal states:
 
 If verification cannot run, record the task as `Needs Human Review`, not `Done`.
 
+## Execution Modes
+
+Default execution mode is `complete-workflow`.
+
+- `plan-only`: ask questions, write spec, write task plan, then stop.
+- `single-task`: execute only the next ready task, verify and review it, update artifacts, then stop.
+- `complete-workflow`: execute all generated tasks sequentially until the request/spec is complete or a stop condition is reached.
+
+Do not stop after `TASK-001` unless execution mode is explicitly `single-task` or a stop condition is reached.
+
 ## Entry Template
 
 ### `<YYYY-MM-DD HH:MM>` - `<TASK-ID>`
@@ -38,32 +48,42 @@ If verification cannot run, record the task as `Needs Human Review`, not `Done`.
 
 After appending each task entry, update `_handoff/current.md` with the latest current state.
 
-### `2026-05-13 20:52` - `TASK-001`
+### 2026-05-13 01:25 - TASK-001
 
-- Status: `Done`
-- Lifecycle transition reached: `Planned -> Ready -> In Progress -> Verified -> Reviewed -> Done`
-- Files changed: `client/src/components/BattleResult.jsx`, `client/test/BattleUploader.test.jsx`, `_task/2026-05-13-battle-empty-state-message.md`
-- Verification result: `cd client && npm test -- BattleUploader.test.jsx` passed; Vitest reported 1 test file passed and 9 tests passed.
-- Review result: `reviewed`; no in-scope defects found. Frontend design pre-flight checked: no new global state, existing mobile layout remains responsive, no `h-screen` introduced, no new effects or animations, existing empty/loading/error states remain represented, and no new dependencies or emojis were added.
-- Blockers: `none`
-- Next step: `write review, summary, final health check`
+- Status: Done
+- Lifecycle transition reached: Planned -> Ready -> In Progress -> Verified -> Reviewed -> Done
+- Files changed: `server/services/battleHistoryService.js`, `server/controllers/battleController.js`, `server/tests/battleRoutes.test.js`, `_task/2026-05-13-complete-battle-history.md`
+- Verification result: `npm run test:server -- server/tests/battleRoutes.test.js` passed with 14 tests; `npm run test:server` passed with 2 suites and 20 tests.
+- Review result: Reviewed saved record normalization, analyze response fields, and route expectations. No in-scope defects found.
+- Blockers: none
+- Next step: TASK-002: Add frontend battle history services and query hooks
 
-### `2026-05-13 21:00` - `TASK-001`
+### 2026-05-13 01:27 - TASK-002
 
-- Status: `Done`
-- Lifecycle transition reached: `Planned -> Ready -> In Progress -> Verified -> Reviewed -> Done`
-- Files changed: `client/src/components/SkeletonResult.jsx`, `client/test/BattleUploader.test.jsx`, `_task/2026-05-13-battle-analysis-loading-state.md`
-- Verification result: `cd client && npm test -- BattleUploader.test.jsx` passed; Vitest reported 1 test file passed and 9 tests passed.
-- Review result: `reviewed`; no in-scope defects found. Frontend design pre-flight checked: no new global state, existing mobile layout remains responsive, no `h-screen` introduced, no new effects or dependencies added, existing empty/loading/error states remain represented, and no emojis were added.
-- Blockers: `none`
-- Next step: `write review, summary, final health check`
+- Status: Done
+- Lifecycle transition reached: Planned -> Ready -> In Progress -> Verified -> Reviewed -> Done
+- Files changed: `client/src/services/battleService.js`, `client/src/hooks/queries/useBattleHistory.js`, `client/src/hooks/queries/useBattleDetail.js`, `client/src/hooks/mutations/useDeleteBattle.js`, `client/test/battleService.test.js`, `_task/2026-05-13-complete-battle-history.md`
+- Verification result: `npm test -- --run battleService.test.js` from `client/` passed with 1 file and 6 tests.
+- Review result: Reviewed service endpoint paths, normalized error handling, and query invalidation behavior. No in-scope defects found.
+- Blockers: none
+- Next step: TASK-003: Add history and detail routes
 
-### `2026-05-13 21:16` - `TASK-001`
+### 2026-05-13 01:32 - TASK-003
 
-- Status: `Done`
-- Lifecycle transition reached: `Planned -> Ready -> In Progress -> Verified -> Reviewed -> Done`
-- Files changed: `.gitignore`, `server/controllers/battleController.js`, `server/routes/battleRoutes.js`, `server/services/battleHistoryService.js`, `server/tests/battleRoutes.test.js`, `_task/2026-05-13-battle-history-saved-results.md`, `_decisions/2026-05-13-battle-history-storage.md`
-- Verification result: `npm test -- server/tests/battleRoutes.test.js` was attempted and the server tests passed, but the overall command exited 1 because the root script forwarded the server path into client Vitest where no matching client tests existed. Corrected verification commands were run: `npm run test:server -- server/tests/battleRoutes.test.js` passed with 1 test suite and 14 tests passed; `npm run test:server` passed with 2 test suites and 20 tests passed.
-- Review result: `reviewed`; no in-scope code defects found. Scope stayed backend-only for single-task execution. Storage durability limitation documented in `_decisions/2026-05-13-battle-history-storage.md`.
-- Blockers: `none`
-- Next step: `write review, summary, final health check, then stop because execution preference is single-task`
+- Status: Done
+- Lifecycle transition reached: Planned -> Ready -> In Progress -> Verified -> Reviewed -> Done
+- Files changed: `client/package.json`, `client/package-lock.json`, `client/src/App.jsx`, `client/src/pages/BattlePage.jsx`, `client/src/components/BattleResult.jsx`, `client/src/pages/BattleHistoryPage.jsx`, `client/src/pages/BattleDetailPage.jsx`, `client/test/BattleHistory.test.jsx`, `_task/2026-05-13-complete-battle-history.md`
+- Verification result: `npm test` from `client/` passed with 3 files and 20 tests; `npm run build` from `client/` passed.
+- Review result: Reviewed routes, loading/empty/error states, responsive classes, route links, and React Router dependency addition. No in-scope defects found.
+- Blockers: none
+- Next step: TASK-004: Add confirmed delete action
+
+### 2026-05-13 01:35 - TASK-004
+
+- Status: Done
+- Lifecycle transition reached: Planned -> Ready -> In Progress -> Verified -> Reviewed -> Done
+- Files changed: `client/src/pages/BattleDetailPage.jsx`, `client/test/BattleHistory.test.jsx`, `_task/2026-05-13-complete-battle-history.md`
+- Verification result: Initial `npm test` from `client/` failed because the delete test expected only one mutation-function argument; test was corrected for TanStack Query's mutation context argument. Re-run `npm test` from `client/` passed with 3 files and 23 tests. `npm run build` from `client/` passed.
+- Review result: Reviewed confirmation gating, cancel behavior, pending state, delete error state, and success navigation to `/battle-history`. No in-scope defects found after the test correction.
+- Blockers: none
+- Next step: Review, summary, and workflow health check

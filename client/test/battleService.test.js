@@ -1,9 +1,11 @@
 import { describe, expect, test, vi } from 'vitest'
 import { api } from '../src/lib/api'
-import { analyzeBattle } from '../src/services/battleService'
+import { analyzeBattle, deleteBattle, getBattle, listBattles } from '../src/services/battleService'
 
 vi.mock('../src/lib/api', () => ({
   api: {
+    delete: vi.fn(),
+    get: vi.fn(),
     post: vi.fn(),
   },
   normalizeApiError: vi.fn(() => ({
@@ -36,5 +38,40 @@ describe('battleService', () => {
         code: 'NETWORK_ERROR',
         message: 'Normalized error.',
       })
+  })
+
+  test('lists saved battles', async () => {
+    const battles = [{ id: 'battle_one', winner: 'A' }]
+    api.get.mockResolvedValue({ data: { battles } })
+
+    await expect(listBattles()).resolves.toEqual(battles)
+
+    expect(api.get).toHaveBeenCalledWith('/api/battles')
+  })
+
+  test('gets a saved battle detail', async () => {
+    const battle = { id: 'battle_one', winner: 'A' }
+    api.get.mockResolvedValue({ data: { battle } })
+
+    await expect(getBattle('battle_one')).resolves.toEqual(battle)
+
+    expect(api.get).toHaveBeenCalledWith('/api/battles/battle_one')
+  })
+
+  test('deletes a saved battle', async () => {
+    api.delete.mockResolvedValue({})
+
+    await expect(deleteBattle('battle_one')).resolves.toBe('battle_one')
+
+    expect(api.delete).toHaveBeenCalledWith('/api/battles/battle_one')
+  })
+
+  test('normalizes history service errors', async () => {
+    api.get.mockRejectedValue(new Error('boom'))
+
+    await expect(listBattles()).rejects.toEqual({
+      code: 'NETWORK_ERROR',
+      message: 'Normalized error.',
+    })
   })
 })

@@ -122,10 +122,18 @@ function BattlePage() {
             </p>
             <p className="mt-1 text-sm text-zinc-400">Photo battle analysis</p>
           </div>
-          <div className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-3 py-2 text-xs font-semibold text-zinc-300 shadow-[0_20px_50px_-35px_rgba(0,0,0,0.8)] sm:flex">
-            <span className="h-2 w-2 rounded-full bg-rose-400" aria-hidden="true" />
-            Ready for two images
-          </div>
+          <nav className="flex items-center gap-3" aria-label="Primary">
+            <a
+              href="/battle-history"
+              className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-2 text-xs font-semibold text-zinc-300 shadow-[0_20px_50px_-35px_rgba(0,0,0,0.8)] transition hover:border-white/20 hover:bg-white/[0.1] active:translate-y-px"
+            >
+              Battle history
+            </a>
+            <div className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-3 py-2 text-xs font-semibold text-zinc-300 shadow-[0_20px_50px_-35px_rgba(0,0,0,0.8)] sm:flex">
+              <span className="h-2 w-2 rounded-full bg-rose-400" aria-hidden="true" />
+              Ready for two images
+            </div>
+          </nav>
         </header>
 
         <div className="grid gap-7 py-7 lg:grid-cols-[0.72fr_1.28fr] lg:items-start lg:py-10">

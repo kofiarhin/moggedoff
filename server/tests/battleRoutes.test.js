@@ -171,11 +171,13 @@ describe('battle routes', () => {
     expect(response.body.id).toBe(response.body.battleId);
     expect(response.body.battleId).toMatch(/^battle_/);
     expect(response.body.winner).toBe('A');
+    expect(response.body.loser).toBe('B');
     expect(response.body.score).toEqual(expect.any(Number));
     expect(response.body.createdAt).toEqual(expect.any(String));
     expect(response.body.selfieAName).toBe('a.png');
     expect(response.body.selfieBName).toBe('b.png');
     expect(response.body.analysisSummary).toEqual(expect.any(String));
+    expect(response.body.battleType).toBe('selfie');
     expect(response.body.images.A.score).toEqual(expect.any(Number));
     expect(response.body.images.B.score).toEqual(expect.any(Number));
     expect(response.body.images.A.attributes).toBeDefined();
@@ -194,11 +196,13 @@ describe('battle routes', () => {
     expect(historyResponse.body.battles[0]).toEqual({
       id: analyzeResponse.body.id,
       winner: 'A',
+      loser: 'B',
       score: analyzeResponse.body.score,
       createdAt: analyzeResponse.body.createdAt,
       selfieAName: 'a.png',
       selfieBName: 'b.png',
       analysisSummary: analyzeResponse.body.analysisSummary,
+      battleType: 'selfie',
     });
 
     expect(detailResponse.status).toBe(200);

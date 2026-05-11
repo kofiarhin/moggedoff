@@ -37,6 +37,12 @@ function headlineScore(result) {
   return Math.round(score * 10) / 10;
 }
 
+function loserForWinner(winner) {
+  if (winner === 'A') return 'B';
+  if (winner === 'B') return 'A';
+  return 'tie';
+}
+
 async function analyzeBattle(req, res, next) {
   const selfieA = req.files.selfieA[0];
   const selfieB = req.files.selfieB[0];
@@ -62,11 +68,13 @@ async function analyzeBattle(req, res, next) {
     const historyRecord = await saveBattleHistory({
       id: battleId,
       winner: result.winner,
+      loser: loserForWinner(result.winner),
       score: headlineScore(result),
       createdAt: new Date().toISOString(),
       selfieAName: selfieA.originalname,
       selfieBName: selfieB.originalname,
       analysisSummary: result.verdict,
+      battleType: 'selfie',
     });
 
     res.json({
@@ -74,9 +82,11 @@ async function analyzeBattle(req, res, next) {
       battleId: historyRecord.id,
       createdAt: historyRecord.createdAt,
       winner: result.winner,
+      loser: historyRecord.loser,
       verdict: result.verdict,
       analysisSummary: historyRecord.analysisSummary,
       score: historyRecord.score,
+      battleType: historyRecord.battleType,
       confidence: result.confidence,
       selfieAName: historyRecord.selfieAName,
       selfieBName: historyRecord.selfieBName,

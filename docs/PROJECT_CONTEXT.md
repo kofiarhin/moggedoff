@@ -4,67 +4,67 @@ This file captures durable repository facts discovered during workflow runs. Kee
 
 ## Project Summary
 
-- Project name: `<PROJECT_NAME>`
-- Purpose: `<ONE_SENTENCE_PURPOSE>`
-- Current maturity: `<prototype / MVP / production / unknown>`
+- Project name: Moggoff
+- Purpose: Selfie battle analysis app.
+- Current maturity: MVP/prototype.
 
 ## Stack
 
-- Frontend: `<Framework or none>`
-- Backend: `<Framework or none>`
-- Database: `<Database or none>`
-- Runtime: `<Node/Python/Ruby/etc.>`
-- Languages: `<Languages>`
-- Styling: `<Tailwind/CSS/SCSS/etc.>`
-- Deployment: `<Platform(s)>`
+- Frontend: React with Vite
+- Backend: Express
+- Database: No database is currently wired in code; battle history uses a backend JSON file service as a temporary persistence layer.
+- Runtime: Node.js
+- Languages: JavaScript
+- Styling: Tailwind CSS v4 through `@tailwindcss/vite`
+- Deployment: Frontend Namecheap and backend Heroku per project rules.
 
 ## Package Manager
 
-- Detected package manager: `<npm / pnpm / yarn / pip / poetry / etc.>`
-- Lockfiles: `<package-lock.json / pnpm-lock.yaml / yarn.lock / etc.>`
-- Install command: `<command>`
+- Detected package manager: npm
+- Lockfiles: `package-lock.json`, `client/package-lock.json`
+- Install command: `npm install` at root and `npm install --prefix client` for client-only dependencies.
 
 ## Common Commands
 
 ```bash
 # Test
-<command>
+npm test
 
 # Lint
-<command>
+cd client && npm run lint
 
 # Build
-<command>
+cd client && npm run build
 
 # Typecheck
-<command>
+# No typecheck script is currently configured.
 ```
 
 ## Testing Tools
 
-- Unit tests: `<Tool>`
-- Integration tests: `<Tool>`
-- End-to-end tests: `<Tool>`
-- Manual verification notes: `<Notes>`
+- Unit tests: Jest for backend service/route tests; Vitest for frontend tests.
+- Integration tests: Supertest for backend API routes.
+- End-to-end tests: None currently configured.
+- Manual verification notes: Use frontend build plus targeted tests for UI work.
 
 ## Repo Conventions
 
-- Folder conventions: `<Notes>`
-- Naming conventions: `<Notes>`
-- API conventions: `<Notes>`
-- State management conventions: `<Notes>`
-- Error handling conventions: `<Notes>`
+- Folder conventions: Frontend code is under `client/src`; backend code is flat under `server/`.
+- Naming conventions: Components use PascalCase; hooks use `use...` names.
+- API conventions: Backend routes live under `/api`; battle endpoints live under `/api/battles`.
+- State management conventions: TanStack Query is used for server state; upload workflow uses local component state.
+- Error handling conventions: Backend errors return `{ error: { code, message } }`; frontend normalizes API errors in `client/src/lib/api.js`.
 
 ## Architecture Rules
 
-- `<Rule discovered from repo or agreed by team>`
-- `<Rule discovered from repo or agreed by team>`
+- Frontend API calls go through `client/src/lib/api.js` and service functions.
+- Backend route handlers delegate persistence and scoring to services.
 
 ## Known Constraints
 
-- `<Constraint>`
-- `<Constraint>`
+- Do not hard-code frontend API origins; use `VITE_API_URL`.
+- The current backend history JSON-file persistence is not production-durable on Heroku.
 
 ## Open Questions
 
-- `<Question>`
+- When production durability matters, migrate battle history persistence to MongoDB/Mongoose.

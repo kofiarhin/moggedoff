@@ -12,3 +12,30 @@ export async function analyzeBattle({ selfieA, selfieB }) {
     throw normalizeApiError(error)
   }
 }
+
+export async function listBattles() {
+  try {
+    const response = await api.get('/api/battles')
+    return response.data.battles
+  } catch (error) {
+    throw normalizeApiError(error)
+  }
+}
+
+export async function getBattle(battleId) {
+  try {
+    const response = await api.get(`/api/battles/${battleId}`)
+    return response.data.battle
+  } catch (error) {
+    throw normalizeApiError(error)
+  }
+}
+
+export async function deleteBattle(battleId) {
+  try {
+    await api.delete(`/api/battles/${battleId}`)
+    return battleId
+  } catch (error) {
+    throw normalizeApiError(error)
+  }
+}

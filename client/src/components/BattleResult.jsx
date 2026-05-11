@@ -142,6 +142,14 @@ function BattleResult({ status, result, error, canRetry, onRetry, previews }) {
         <p className="mt-5 border-t border-white/10 pt-4 text-xs leading-5 text-zinc-500">
           For entertainment only. Results reflect photo analysis, not personal worth.
         </p>
+        {result.id || result.battleId ? (
+          <a
+            href={`/battles/${result.id || result.battleId}`}
+            className="mt-4 inline-flex rounded-lg border border-white/10 bg-white px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200 active:translate-y-px"
+          >
+            View saved result
+          </a>
+        ) : null}
       </div>
     )
   }

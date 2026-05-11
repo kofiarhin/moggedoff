@@ -8,6 +8,14 @@ Use the latest direct user prompt as the primary request source when it looks li
 
 Before touching code, ask focused clarifying questions until you reach about 90% understanding. If the user explicitly says `skip questions`, generate a best-effort spec and record assumptions.
 
+Default execution mode is `complete-workflow`. Do not stop after `TASK-001` unless the user explicitly selected `single-task` or a stop condition is reached.
+
+Execution modes:
+
+- `plan-only`: ask questions, write spec, write task plan, then stop.
+- `single-task`: execute only the next ready task, verify and review it, update artifacts, then stop.
+- `complete-workflow`: execute all generated tasks sequentially until the request/spec is complete or a stop condition is reached.
+
 Do not implement without:
 
 1. A saved spec in `_spec/`.
@@ -27,11 +35,11 @@ direct user prompt or WORK_REQUEST
 -> read _progress and _summary
 -> read or create _handoff/current.md
 -> vertical plan in _task
--> execute one task at a time
--> verify
--> critique/fix
--> update _progress
--> update _handoff/current.md
+-> execute every task in order by default
+-> verify each task
+-> critique/fix and review each task
+-> update _progress after each task
+-> update _handoff/current.md after each task
 -> review in _review
 -> final summary in _summary
 -> update _handoff/current.md
@@ -78,7 +86,8 @@ If the active user prompt is exactly or primarily `continue workflow`, resume in
 9. Continue from that task.
 10. Do not ask the original intake questions again unless a current ambiguity blocks safe continuation.
 11. Do not regenerate the entire spec unless the request changed.
-12. If all tasks are `Done`, complete any missing `_review/`, `_summary/`, handoff update, workflow health check, or final response step.
+12. Continue executing remaining tasks sequentially until all tasks are complete or a stop condition is reached.
+13. If all tasks are `Done`, complete any missing `_review/`, `_summary/`, handoff update, workflow health check, or final response step.
 
 ## 2. Intake And Questioning
 
@@ -235,9 +244,23 @@ Use Ralph Wiggum-style task phrasing: small, literal, concrete steps with simple
 
 No implementation may happen until this file exists.
 
+After task plan creation:
+
+- If execution mode is `plan-only`, stop after saving the spec and task plan.
+- If execution mode is `single-task`, execute only the next ready task, verify and review it, update artifacts, then stop.
+- If execution mode is omitted, use `complete-workflow`.
+- In `complete-workflow`, execute every task in order by default.
+- Do not create the final summary until all executable tasks are completed or a stop condition is reached.
+
 ## 7. Execution Phase
 
-Execute one task at a time.
+Execute one task at a time, and in the default `complete-workflow` mode continue through every task in order until the full request/spec is complete or a stop condition is reached.
+
+Each task must complete this lifecycle before the next task starts:
+
+```txt
+Planned -> Ready -> In Progress -> Verified -> Reviewed -> Done
+```
 
 For each task:
 
@@ -257,9 +280,19 @@ For each task:
 14. Move the task to `Done` only after verification and review are complete.
 15. Append progress to `_progress/progress.md`.
 16. Update `_handoff/current.md` with the last completed task, current task, next task, blockers, verification status, workflow health status, and suggested next prompt.
-17. Continue only if safe.
+17. Continue to the next task automatically only when the current task is `Done`.
 
-Do not start the next task if the current task is blocked, risky, unclear, unverified, outside scope, or has unresolved in-scope defects.
+Do not start the next task if the current task is `Blocked`, `Needs Human Review`, risky, unclear, unverified, outside scope, has unresolved in-scope defects, fails verification, or requires external access.
+
+Stop if:
+
+- A task is `Blocked`.
+- A task is `Needs Human Review`.
+- Verification fails.
+- Scope becomes unclear.
+- Risk increases beyond the saved spec and task plan.
+- External access or credentials are needed.
+- The active execution mode is explicit `single-task` and the current task has been verified, reviewed, documented, and stopped.
 
 ## 8. Verification
 
@@ -339,6 +372,8 @@ If in-scope defects are found, fix them before summary and rerun relevant verifi
 
 After the review is complete, create or append a summary in `_summary/`.
 
+Do not create the final summary until all executable tasks are completed or a stop condition is reached.
+
 `_summary/` is completed workflow history. It records finished workflow runs and should not replace the live resume state in `_handoff/current.md`.
 
 The summary should include:
@@ -411,8 +446,8 @@ Before the final response, check:
 
 Final health status:
 
-- `Passed`: all required artifacts exist, verification was run or documented, scope was respected, and decisions were handled correctly.
-- `Partial`: artifacts exist, but non-blocking verification gaps or follow-up risks remain documented.
+- `Passed`: all required artifacts exist, all executable tasks are complete, verification was run or documented, scope was respected, and decisions were handled correctly.
+- `Partial`: artifacts exist, but some tasks remain because of a documented blocker, human-review need, verification gap, or follow-up risk.
 - `Failed`: any required artifact is missing, scope was not respected, or required verification/review/summary documentation is absent.
 
 If any required artifact is missing, mark workflow health as `Failed`.
